@@ -1,14 +1,13 @@
 //Importamos las librarías requeridas
-const express = require('express')
-const bodyParser = require('body-parser')
+const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 
 //Documentación en https://expressjs.com/en/starter/hello-world.html
-const app = express()
+const app = express();
 
-//Creamos un parser de tipo application/json
-//Documentación en https://expressjs.com/en/resources/middleware/body-parser.html
-const jsonParser = bodyParser.json()
+//actualizacion a una funcion moderna e incluida en express
+app.use(express.json());
+
 
 
 // Abre la base de datos de SQLite
@@ -31,19 +30,21 @@ let db = new sqlite3.Database('./base.sqlite3', (err) => {
     });
 });
 
-//Creamos un endpoint de login que recibe los datos como json
-app.post('/insert', jsonParser, function (req, res) {
+//Creamos un endpoint llamado agrega_todo
+app.post('/agrega_todo', function (request, response) {
     //Imprimimos el contenido del campo todo
-    const { todo } = req.body;
+    const { todo } = request.body;
    
     console.log(todo);
-    res.setHeader('Content-Type', 'application/json');
+    response.setHeader('Content-Type', 'application/json');
     
 
     if (!todo) {
-        res.status(400).send('Falta información necesaria');
+        // regresamos un 400 cuando una poeticion no es correcta es decir le falta algun dato
+        response.status(400).send('Bad Request');
         return;
     }
+    //insertamos los datos de la peticion en la base de datos
     const stmt  =  db.prepare('INSERT INTO todos (todo, created_at) VALUES (?, CURRENT_TIMESTAMP)');
 
     stmt.run(todo, (err) => {
@@ -60,8 +61,8 @@ app.post('/insert', jsonParser, function (req, res) {
     stmt.finalize();
     
     //Enviamos de regreso la respuesta
-    res.setHeader('Content-Type', 'application/json');
-    res.status(201).send();
+    response.setHeader('Content-Type', 'application/json');
+    response.status(201).send();
 })
 
 
@@ -74,14 +75,14 @@ app.get('/', function (req, res) {
 
 
 //Creamos un endpoint de login que recibe los datos como json
-app.post('/login', jsonParser, function (req, res) {
+/*app.post('/login', jsonParser, function (req, res) {
     //Imprimimos el contenido del body
     console.log(req.body);
 
     //Enviamos de regreso la respuesta
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ 'status': 'ok' }));
-})
+})*/
 
 //Corremos el servidor en el puerto 3000
 const port = 3000;
