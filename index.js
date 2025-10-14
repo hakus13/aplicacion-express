@@ -16,22 +16,40 @@ let db = new sqlite3.Database('./base.sqlite3', (err) => {
         console.error(err.message);
     }
     console.log('Conectado a la base de datos SQLite.');
+    //llamamos alas funciones
+    borrarTabla(()=>{
+       crearTabla(); 
+    });
+   
+});
 
-    db.run(`CREATE TABLE IF NOT EXISTS todos (
+//funcion borrar tabla
+function borrarTabla (callback){
+    db.run('DROP TABLE IF EXISTS todos', (err) => {
+        if(err){
+            console.error('Error al borrar la tabla:', err.message);
+        }else {
+            console.log('Tabla borrada correctamente.')
+        }
+        if(callback) callback(); //lamamos el siguiente paso
+}
+
+// funcion para la creacion de la tabla todos
+function crearTabla(){
+     db.run(`CREATE TABLE todos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         todo TEXT NOT NULL,
-        created_at INTEGER
+        created_at DATATIME DEFAULT CURRENT_TIMESTAMP
     )`, (err) => {
         if (err) {
             console.error(err.message);
         } else {
-            console.log('Tabla tareas creada o ya existente.');
+            console.log('Tabla todos creada exitosamente.');
         }
     });
-});
-
+}
 //Creamos un endpoint llamado agrega_todo
-app.post('/agrega_todo', function (request, response) {
+app.post('/agrega_todo', (request, response) => {
     //Imprimimos el contenido del campo todo
     const { todo } = request.body;
    
@@ -45,12 +63,12 @@ app.post('/agrega_todo', function (request, response) {
         return;
     }
     //insertamos los datos de la peticion en la base de datos
-    const stmt  =  db.prepare('INSERT INTO todos (todo, created_at) VALUES (?, CURRENT_TIMESTAMP)');
+    const stmt  =  db.prepare('INSERT INTO todos (todo) VALUES (?)');
 
     stmt.run(todo, (err) => {
         if (err) {
           console.error("Error running stmt:", err);
-          res.status(500).send(err);
+          response.status(500).send(err);
           return;
 
         } else {
@@ -61,28 +79,17 @@ app.post('/agrega_todo', function (request, response) {
     stmt.finalize();
     
     //Enviamos de regreso la respuesta
-    response.setHeader('Content-Type', 'application/json');
     response.status(201).send();
 })
 
 
 
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
     //Enviamos de regreso la respuesta
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ 'status': 'ok2' }));
+    res.json({ 'status': 'ok2' });
 })
 
 
-//Creamos un endpoint de login que recibe los datos como json
-/*app.post('/login', jsonParser, function (req, res) {
-    //Imprimimos el contenido del body
-    console.log(req.body);
-
-    //Enviamos de regreso la respuesta
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ 'status': 'ok' }));
-})*/
 
 //Corremos el servidor en el puerto 3000
 const port = 3000;
