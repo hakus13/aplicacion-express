@@ -25,14 +25,14 @@ let db = new sqlite3.Database('./base.sqlite3', (err) => {
 
 //funcion borrar tabla
 function borrarTabla (callback){
-    db.run('DROP TABLE IF EXISTS todos'), (err) => {
+    db.run('DROP TABLE IF EXISTS todos', (err) => {
         if(err){
             console.error('Error al borrar la tabla:', err.message);
         }else {
             console.log('Tabla borrada correctamente.')
         }
         if(callback) callback(); //lamamos el siguiente paso
-    }
+    )};
 }
 
 // funcion para la creacion de la tabla todos
