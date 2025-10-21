@@ -31,8 +31,8 @@ function borrarTabla (callback){
         }else {
             console.log('Tabla borrada correctamente.')
         }
-        if(callback) callback(); //lamamos el siguiente paso
-    )};
+        if(callback) callback(); //llamamos el siguiente paso
+    });
 }
 
 // funcion para la creacion de la tabla todos
@@ -50,17 +50,16 @@ function crearTabla(){
     });
 }
 //Creamos un endpoint llamado agrega_todo
-app.post('/agrega_todo', (request, response) => {
+app.post('/agrega_todo', (req, res) => {
     //Imprimimos el contenido del campo todo
-    const { todo } = request.body;
+    const { todo } = req.body;
    
     console.log(todo);
-    response.setHeader('Content-Type', 'application/json');
     
 
     if (!todo) {
         // regresamos un 400 cuando una poeticion no es correcta es decir le falta algun dato
-        response.status(400).send('Bad Request');
+        res.status(400).send('Bad Request');
         return;
     }
     //insertamos los datos de la peticion en la base de datos
@@ -69,18 +68,18 @@ app.post('/agrega_todo', (request, response) => {
     stmt.run(todo, (err) => {
         if (err) {
           console.error("Error running stmt:", err);
-          response.status(500).send(err);
+          res.status(500).send(err);
           return;
 
         } else {
           console.log("Insert was successful!");
         }
     });
-
-    stmt.finalize();
     
     //Enviamos de regreso la respuesta
-    response.status(201).send();
+    res.status(201);
+    res.json({'Message': 'Created'});
+    stmt.finalize();
 })
 
 
