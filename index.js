@@ -1,5 +1,6 @@
 //Importamos las librarías requeridas
 const express = require('express');
+const { status } = require('express/lib/response');
 const sqlite3 = require('sqlite3').verbose();
 
 //Documentación en https://expressjs.com/en/starter/hello-world.html
@@ -85,9 +86,22 @@ app.post('/agrega_todo', (req, res) => {
 
 
 app.get('/', (req, res) => {
-    //Enviamos de regreso la respuesta
-    res.json({ 'status': 'ok2' });
-})
+    //preparamos la consulta
+    const select = 'SELECT * FROM todos';
+
+    //ejecutamos db.all para traer todo en un arreglo
+    db.all(select,[],(err, rows)=>{
+        if(err){
+            console.log('Error en la consulta:', err.message);
+            res.status(500).json({ error: 'Error al consultar la base de datos'});
+        }
+        //enviamos los resultados como JSON
+        res.json({
+            status: 'ok',
+            data: rows
+        });
+    });
+});
 
 
 
