@@ -51,7 +51,7 @@ function crearTabla(){
     });
 }
 //Creamos un endpoint llamado agrega_todo
-app.post('/agrega_todo', (req, res) => {
+app.post('/insert', (req, res) => {
     //Imprimimos el contenido del campo todo
     const { todo } = req.body;
    
@@ -103,11 +103,19 @@ app.get('/', (req, res) => {
     });
 });
 
+app.post('/login',(req, res)=>{
+    res.status(200).json({ 'status': 'ok' });
+});
 
 
-//Corremos el servidor en el puerto 3000
-const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-    console.log(`Aplicación corriendo en http://localhost:${port}`)
-})
+// Solo escuchamos el puerto si este archivo es el principal (no es un test)
+if (require.main === module) {
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+        console.log(`Aplicación corriendo en http://localhost:${port}`);
+    });
+}
+
+// Exportamos app y db para usarlos en los tests
+module.exports = { app: app, db };
